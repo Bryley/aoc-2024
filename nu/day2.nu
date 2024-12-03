@@ -1,5 +1,5 @@
 
-let data = open ./inputs/input2.txt | lines | each {$in | split words | into int }
+let data = open ./inputs/day2.txt | lines | each {$in | split words | into int }
 
 def is_valid_part1 [] {
     let diffs = $in | zip ($in | skip 1) | each {|x| $x.1 - $x.0}
@@ -11,7 +11,7 @@ def is_valid_part1 [] {
     $check1 and ($is_postive or $is_negative)
 }
 
-def is_valid_part2 [] {
+def is_valid_part2_old [] {
     let diffs = $in | zip ($in | skip 1) | each {|x| $x.1 - $x.0}
 
     let positive_diffs = $diffs | enumerate | filter {
@@ -39,6 +39,22 @@ def is_valid_part2 [] {
         or
         ($negative_diffs_check1 and ($negative_diffs_is_postive or $negative_diffs_is_negative))
     )
+}
+
+def is_valid_part2 [] {
+    if ($in | is_valid_part1) {
+        return true
+    }
+
+    let data = $in | enumerate
+
+    # Check each permutation of removed element of the result using part1
+    let permutations = $data | each {|x| $data | where index != $x.index | get item }
+    # print "\n"
+    # print --raw $permutations
+    # print "\n"
+
+    $permutations | each {|x| $x | is_valid_part1} | any {}
 }
 
 let part1 = $data | each { {

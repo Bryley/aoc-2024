@@ -1,5 +1,5 @@
 
-let data = (open inputs/input1.txt | detect columns --no-headers)
+let data = (open inputs/day1.txt | detect columns --no-headers)
 
 let part1 = (
   ($data.column0 | sort) | zip ($data.column1 | sort) | each {|x| {a: ($x.0 | into int), b: ($x.1 | into int)}} | insert 'diff' { ($in.a - $in.b) | math abs } | get diff | math sum
@@ -7,7 +7,7 @@ let part1 = (
 
 $part1
 
-# TODO
+# TODO part 2
 
 # let freq = ($data | histogram column1)
 
