@@ -50,4 +50,11 @@ Each cell has 2 spots indicating part 1 and part 2 respectively.
 
 
 
+## Disclaimer
 
+The code in this project is not an accurate reflection of the code I would write
+for an actual project. I use a lot of unwraps(), ignore some performance
+improvements and overall take a lot of shortcuts.
+
+For an actual production ready application I make proper errors, add property
+and unit tests, and make efforts to maximize efficiency out of my application.
