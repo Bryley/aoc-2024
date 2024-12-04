@@ -8,10 +8,11 @@ Each solution is done in either Rust or Nushell or both.
 
 Make sure you put all your inputs inside `./inputs/day{number}.txt`.
 
-Then for rust simply run `cargo run -- {number}` to run the given number.
+Then simply run `just rust {day}` to run the rust solution just for that day.
 
-All nushell solutions are in the `./nu/{day{number}.nu}` files and can be ran
-using `nu ./nu/day{number}.nu` for your particular day.
+Likewise, to run the Nushell solution you can run `just nu {day}`.
+
+Otherwise, you can run both solutions using `just run {day}`.
 
 ## Why Rust and Nushell
 
@@ -19,7 +20,7 @@ Rust is the main programming language I use at the moment and this is a good
 excuse to sharpen my skills at Rust and work with Rust applications.
 
 Nushell is a bit of a weirder choice however I found that while daily driving
-Nushell as default shell, I found I am using it more and more to solve quick
+Nushell as my default shell, I found I am using it more and more to solve quick
 scripting-like tasks that I would otherwise use Python for.
 
 Mainly because I like it's functional like programming concepts using higher
@@ -44,9 +45,10 @@ Each cell has 2 spots indicating part 1 and part 2 respectively.
 
 | Day | Rust | Nushell |
 | --- | ---- | ------- |
-| 1   | ✅✅ | ✅❌    |
-| 2   | ✅❌ | ✅✅    |
+| 1   | ✅✅ | ✅✅    |
+| 2   | ✅✅ | ✅✅    |
 | 3   | ✅✅ | ✅✅    |
+| 4   | ✅✅ | ❌❌    |
 
 
 

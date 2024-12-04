@@ -9,6 +9,7 @@ fn main() {
         Box::new(day1::Day),
         Box::new(day2::Day),
         Box::new(day3::Day),
+        Box::new(day4::Day),
     ];
     let args = std::env::args().collect::<Vec<_>>();
     let [_, day_selection] = args.as_slice() else {
@@ -43,7 +44,7 @@ pub trait AdventOfCodeDay {
         let part2 = self.part2(&input);
         let p2_time = timer.elapsed();
 
-        println!("Day {} results:", self.day());
+        println!("Rust Day {} results:", self.day());
         println!("  Part 1: {part1} in {}ms", p1_time.as_millis());
         println!("  Part 2: {part2} in {}ms", p2_time.as_millis());
     }
