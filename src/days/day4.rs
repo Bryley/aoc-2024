@@ -13,22 +13,17 @@ impl AdventOfCodeDay for Day {
         let board = Board::from_str(input).unwrap();
 
         let mut total = 0;
-        for row in 0..board.height {
-            for col in 0..board.width {
-                total += board.look_for("XMAS", row as i64, col as i64);
-            }
+        for (row, col, _) in board.iter() {
+            total += board.look_for("XMAS", row, col);
         }
         total.to_string()
     }
 
     fn part2(&self, input: &str) -> String {
         let board = Board::from_str(input).unwrap();
-
         let mut total = 0;
-        for row in 0..board.height {
-            for col in 0..board.width {
-                total += board.find_mas(row as i64, col as i64) as usize;
-            }
+        for (row, col, _) in board.iter() {
+            total += board.find_mas(row, col) as usize;
         }
         total.to_string()
     }
@@ -38,7 +33,6 @@ impl AdventOfCodeDay for Day {
 struct Board {
     rows: Vec<Vec<char>>,
     pub width: usize,
-    pub height: usize,
 }
 
 impl FromStr for Board {
@@ -52,14 +46,11 @@ impl FromStr for Board {
             for c in line.chars() {
                 row.push(c);
             }
-            if row.len() > width {
-                width = row.len()
-            }
+            width = row.len();
             rows.push(row);
         }
 
         Ok(Self {
-            height: rows.len(),
             rows,
             width,
         })
@@ -142,6 +133,33 @@ impl Board {
             return false;
         }
         self.look_for_recursive(word, row_fn(row), col_fn(col), row_fn, col_fn)
+    }
+
+    pub fn iter(&self) -> BoardIter<'_> {
+        BoardIter {
+            board: self,
+            index: 0,
+        }
+    }
+}
+
+struct BoardIter<'a> {
+    board: &'a Board,
+    index: usize,
+}
+
+impl Iterator for BoardIter<'_> {
+    type Item = (i64, i64, char);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let row = (self.index / self.board.width) as i64;
+        let col = (self.index % self.board.width) as i64;
+
+        self.index += 1;
+
+        let current_char = self.board.get(row, col)?;
+
+        Some((row, col, current_char))
     }
 }
 

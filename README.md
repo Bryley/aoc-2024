@@ -49,6 +49,7 @@ Each cell has 2 spots indicating part 1 and part 2 respectively.
 | 2   | ✅✅ | ✅✅    |
 | 3   | ✅✅ | ✅✅    |
 | 4   | ✅✅ | ❌❌    |
+| 5   | ✅✅ | ❌❌    |
 
 
 
