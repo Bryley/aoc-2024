@@ -129,7 +129,7 @@ impl PartialOrd for Entry<'_> {
 
 impl Ord for Entry<'_> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        if self.ordering.order(self.value, other.value) {
+        if self.ordering.comes_after(self.value, other.value) {
             Ordering::Less
         } else {
             Ordering::Greater
@@ -170,7 +170,7 @@ impl<'a> TryFrom<&'a str> for OrderingMap<'a> {
 }
 
 impl OrderingMap<'_> {
-    pub fn order(&self, num1: &str, num2: &str) -> bool {
+    pub fn comes_after(&self, num1: &str, num2: &str) -> bool {
         let Some(values) = self.0.get(num1) else {
             return false;
         };

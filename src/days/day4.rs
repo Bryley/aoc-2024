@@ -1,3 +1,18 @@
+//! Day 4 part 1 was solved using a versatile solution using recursion.
+//!
+//! This recursive function took a string slice, row, column and transformation functions to those
+//! rows and columns, then would check if the the first character of the string slice matched the
+//! given row and column then run the function again except with the string slice's first character
+//! removed and the transformations applied to the rows and columns.
+//!
+//! This means this code could be reused for words other than "XMAS" simply by changing the input
+//! to the function.
+//!
+//! Part 2 was a bit less versatile, it still uses the recursive function, but this time instead of
+//! having versatile input "MAS" is hard coded in. This could easily be changed by getting the
+//! input, finding the middle character and changing the start row and col to match however I feel
+//! this code will over complicate the simple problem and the simple diagonal check I do is enough.
+
 use std::str::{Chars, FromStr};
 
 use crate::AdventOfCodeDay;
