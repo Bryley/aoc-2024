@@ -1,8 +1,29 @@
+//! To solve day 6 I used a custom `Layout` struct to store all the information.
+//!
+//! I also stored all the previously visited spaces along with the direction (for part 2)
+//! I can then collect all that info in a set ignoring the spaces and get the size easily.
+//!
+//! For part 2 my original fast solution as to just run the step function 100_000 times
+//! and see if the character exits before then, if not then I assume it never converges.
+//!
+//! This worked but it was taking around 3mins to complete. The first thing I did to speed
+//! it up was to update the `visited` hashset to store directions and to check each move if it has
+//! already visited that square. This helped shave it down a little but I was still unsatisfied
+//! with the result.
+//!
+//! I also originally thought it was partly due to the layout.clone() call I was doing for every
+//! position in the grid, however after spending time fixing that and testing it, it made no
+//! noticeable difference. 
+//!
+//! The final fix I applied was to utilisie concurrency with threads. I basically go through and
+//! spawn a thread for each position in the grid to check if it was finite or not (capping the
+//! number of threads using the `THREADS` constant). This shaved the time it took down to around
+//! 21 secs on my hardware.
+
 use std::{
     collections::HashSet,
     fmt::{Display, Write},
     str::FromStr,
-    sync::{Arc, Mutex},
     thread,
 };
 
@@ -25,40 +46,31 @@ impl AdventOfCodeDay for Day {
     }
 
     fn part2(&self, input: &str) -> String {
+        const THREADS: usize = 100;
+
         let layout = Layout::from_str(input).unwrap();
 
-        // let mut threads = Vec::with_capacity(10);
+        let mut threads = Vec::with_capacity(THREADS);
 
         let mut success = 0;
         for row in 0..layout.height {
             for col in 0..layout.width {
-                // let layout_clone = layout.clone();
-                // TODO fix this code
-                if !is_finite(layout.clone(), (row, col)) {
-                    success += 1;
+                let layout_clone = layout.clone();
+                let handle = thread::spawn(move || (is_finite(layout_clone, (row, col))) as isize);
+                threads.push(handle);
+
+                if threads.len() >= THREADS {
+                    for t in threads.drain(..) {
+                        success += t.join().unwrap();
+                    }
+                    threads.clear();
                 }
-                // let handle = thread::spawn(move || (!is_finite(layout_clone, (row, col))) as isize);
-                // let t = thread::spawn(move || {
-                //     if !is_finite(&layout, (row, col)) {
-                //         let arc = Arc::clone(&success);
-                //         let mut success = arc.lock().unwrap();
-                //         *success += 1;
-                //     }
-                // });
-                // threads.push(handle);
-                //
-                // if threads.len() >= 10 {
-                //     for t in threads.drain(..) {
-                //         success += t.join().unwrap();
-                //     }
-                //     threads.clear();
-                // }
             }
         }
-        // for t in threads.drain(..) {
-        //     success += t.join().unwrap();
-        // }
-        // threads.clear();
+        for t in threads.drain(..) {
+            success += t.join().unwrap();
+        }
+        threads.clear();
 
         success.to_string()
     }
@@ -66,10 +78,10 @@ impl AdventOfCodeDay for Day {
 
 fn is_finite(mut layout: Layout, (row, col): (isize, isize)) -> bool {
     if row == layout.character.0 && col == layout.character.1 {
-        return true;
+        return false;
     }
     if layout.obstacle_at(row, col) {
-        return true;
+        return false;
     }
     layout.extra_obstacle = Some((row, col));
 
@@ -86,7 +98,6 @@ fn is_finite(mut layout: Layout, (row, col): (isize, isize)) -> bool {
 #[derive(Debug, Clone)]
 struct Layout {
     pub obstacles: HashSet<(isize, isize)>,
-    original_character: (isize, isize),
     character: (isize, isize),
     character_direction: Direction,
     pub width: isize,
@@ -124,13 +135,6 @@ impl Direction {
 }
 
 impl Layout {
-    pub fn clear(&mut self) {
-        self.extra_obstacle = None;
-        self.visited.clear();
-        self.character = self.original_character;
-        self.character_direction = Direction::Up;
-    }
-
     pub fn obstacle_at(&self, row: isize, col: isize) -> bool {
         if let Some((r, c)) = self.extra_obstacle {
             if row == r && col == c {
@@ -273,7 +277,6 @@ impl FromStr for Layout {
 
         Ok(Self {
             obstacles,
-            original_character: character,
             character,
             character_direction: Direction::Up,
             width,

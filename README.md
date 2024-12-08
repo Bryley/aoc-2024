@@ -50,6 +50,8 @@ Each cell has 2 spots indicating part 1 and part 2 respectively.
 | 3   | ✅✅ | ✅✅    |
 | 4   | ✅✅ | ❌❌    |
 | 5   | ✅✅ | ❌❌    |
+| 6   | ✅✅ | ❌❌    |
+| 7   | ✅✅ | ❌❌    |
 
 
 
