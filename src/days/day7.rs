@@ -51,7 +51,7 @@
 //!
 //! Finally the great thing about the way I created this was when part 2 came around it was super
 //! simple to solve as all I had to do was add another variant to the enum for concattination, then
-//! add a few lines here and there and define the behaviour of it in the eval function
+//! add a few lines here and there and define the behaviour of it in the eval function.
 
 use std::str::FromStr;
 
@@ -68,44 +68,34 @@ impl AdventOfCodeDay for Day {
     }
 
     fn part1(&self, input: &str) -> String {
-        let mut res = 0;
-
-        for line in input.lines() {
-            let input = InputLine::from_str(line).unwrap();
-            let expected = input.expected_result;
-
-            let eqs = input.get_equations(false);
-            for eq in eqs {
-                // println!("{eq} = {} | {expected}", eq.eval());
-                if expected == eq.eval() {
-                    res += expected;
-                    // println!("Yes! {res}");
-                    break;
-                }
-            }
-        }
-        res.to_string()
+        run_day(input, false)
     }
 
     fn part2(&self, input: &str) -> String {
-        let mut res = 0;
+        run_day(input, true)
+    }
+}
 
-        for line in input.lines() {
-            let input = InputLine::from_str(line).unwrap();
-            let expected = input.expected_result;
+fn run_day(input: &str, part2: bool) -> String {
+    let mut res = 0;
 
-            let eqs = input.get_equations(true);
-            for eq in eqs {
-                // println!("{eq} = {} | {expected}", eq.eval());
-                if expected == eq.eval() {
-                    res += expected;
-                    // println!("Yes! {res}");
-                    break;
-                }
+    for line in input.lines() {
+        let input = InputLine::from_str(line).unwrap();
+        let expected = input.expected_result;
+
+        let eqs = input.get_equations(part2);
+        for eq in eqs {
+            let val = eq.eval();
+
+            // println!("{eq} = {} | {expected}", eq.eval());
+            if expected == val {
+                res += expected;
+                // println!("Yes! {res}");
+                break;
             }
         }
-        res.to_string()
     }
+    res.to_string()
 }
 
 struct InputLine {
