@@ -1,4 +1,6 @@
-use std::{collections::VecDeque, fmt::Display, str::FromStr};
+use std::{collections::VecDeque, fmt::Display, iter::repeat, str::FromStr};
+
+use regex::Regex;
 
 use crate::AdventOfCodeDay;
 
@@ -11,9 +13,13 @@ impl AdventOfCodeDay for Day {
 
     fn part1(&self, input: &str) -> String {
         let mut hd = Hardrive::from_str(input).unwrap();
-        hd.fragment();
-        let checksum = hd.checksum();
-        checksum.to_string()
+        println!("{hd} | {}", hd.is_fragmented());
+        let taken = hd.take_chunk_from_back();
+        println!("{hd} | {} | {taken:?}", hd.is_fragmented());
+        // hd.fragment();
+        // let checksum = hd.checksum();
+        // checksum.to_string()
+        "".to_string()
     }
 
     fn part2(&self, input: &str) -> String {
@@ -22,83 +28,125 @@ impl AdventOfCodeDay for Day {
 }
 
 struct Hardrive {
-    nums: VecDeque<Option<usize>>,
+    // (Optional ID (None = Freespace), length)
+    nums: VecDeque<(Option<usize>, usize)>,
 }
 
 impl Hardrive {
+    /// This function is O(n) so maybe try to make it cheaper to check, or check less frequently?
     pub fn is_fragmented(&self) -> bool {
         let mut hit_none = false;
-        for num in &self.nums {
-            if num.is_none() {
+        for (id, len) in &self.nums {
+            if id.is_none() && *len != 0 {
                 hit_none = true;
             }
-            if num.is_some() && hit_none {
+            if id.is_some() && hit_none {
                 return false;
             }
         }
         true
     }
 
-    pub fn take_from_back(&mut self) -> usize {
-        self.nums
-            .iter_mut()
-            .rev()
-            .find_map(|x| x.take())
-            .expect("Empty list")
-    }
-
-    pub fn add_to_front(&mut self, val: usize) {
-        let item = self
+    pub fn take_chunk_from_back(&mut self) -> (usize, usize, usize) {
+        let (index, (id, len)) = self
             .nums
             .iter_mut()
-            .find(|x| x.is_none())
-            .expect("Empty list");
-        *item = Some(val);
+            .enumerate()
+            .rev()
+            .find(|(_, (id, _))| id.is_some())
+            .unwrap();
+        let id = id.take().unwrap();
+
+        (index, id, *len)
     }
 
-    pub fn fragment(&mut self) {
-        while !self.is_fragmented() {
-            let taken = self.take_from_back();
-            self.add_to_front(taken);
-        }
-    }
-
-    pub fn take_chunk_from_back(&mut self) -> (usize, usize) {
-        todo!()
-        // let mut iter = self.nums.iter_mut().rev().skip_while(|x| x.is_none());
-        //
-        // let num = iter.next().expect("Empty list").take().unwrap();
-        //
-        // let mut size = 1;
-        // while let Some(opt_val) = iter.next() {
-        //     let Some(n) = opt_val.take() else {
-        //         break;
-        //     };
-        //     if n != num {
-        //         break;
-        //     }
-        //     size += 1;
-        // }
-        //
-        // (num, size)
-    }
-
-    pub fn add_to_front_chunk(&mut self, num: usize, len: usize) {
-        todo!()
-    }
-
-    pub fn checksum(&self) -> usize {
-        let mut checksum = 0;
-        for (index, val) in self.nums.iter().enumerate() {
-            let Some(val) = val else {
-                break;
-            };
-            checksum += index * val;
-        }
-
-        checksum
+    // TODO NTS: Working on this, trying to think of best way to only move it if there is space for
+    // it.
+    pub fn add_chunk_to_front(&mut self, id: usize, len: usize) {
+        let Some(x) = self
+            .nums
+            .iter_mut()
+            .find(|(id, l)| *l >= len && id.is_none())
+        else {
+            return;
+        };
     }
 }
+
+// impl Hardrive {
+//     pub fn is_fragmented(&self) -> bool {
+//         let mut hit_none = false;
+//         for num in &self.nums {
+//             if num.is_none() {
+//                 hit_none = true;
+//             }
+//             if num.is_some() && hit_none {
+//                 return false;
+//             }
+//         }
+//         true
+//     }
+//
+//     pub fn take_from_back(&mut self) -> usize {
+//         self.nums
+//             .iter_mut()
+//             .rev()
+//             .find_map(|x| x.take())
+//             .expect("Empty list")
+//     }
+//
+//     pub fn add_to_front(&mut self, val: usize) {
+//         let item = self
+//             .nums
+//             .iter_mut()
+//             .find(|x| x.is_none())
+//             .expect("Empty list");
+//         *item = Some(val);
+//     }
+//
+//     pub fn fragment(&mut self) {
+//         while !self.is_fragmented() {
+//             let taken = self.take_from_back();
+//             self.add_to_front(taken);
+//         }
+//     }
+//
+//     pub fn take_chunk_from_back(&mut self) -> (usize, usize) {
+//         todo!()
+//         // let mut iter = self.nums.iter_mut().rev().skip_while(|x| x.is_none());
+//         //
+//         // let num = iter.next().expect("Empty list").take().unwrap();
+//         //
+//         // let mut size = 1;
+//         // while let Some(opt_val) = iter.next() {
+//         //     let Some(n) = opt_val.take() else {
+//         //         break;
+//         //     };
+//         //     if n != num {
+//         //         break;
+//         //     }
+//         //     size += 1;
+//         // }
+//         //
+//         // (num, size)
+//     }
+//
+//     pub fn add_to_front_chunk(&mut self, num: usize, len: usize) {
+//         todo!()
+//     }
+//
+//     pub fn checksum(&self) -> usize {
+//         let mut checksum = 0;
+//         for (index, val) in self.nums.iter().enumerate() {
+//             let Some(val) = val else {
+//                 break;
+//             };
+//             checksum += index * val;
+//         }
+//
+//         checksum
+//     }
+// }
 
 impl FromStr for Hardrive {
     type Err = String;
@@ -114,9 +162,7 @@ impl FromStr for Hardrive {
                 .map_err(|_| format!("Failed to convert digit '{c}'"))?;
 
             let insert_val = if occupy { Some(index / 2) } else { None };
-            for _ in 0..value {
-                nums.push_back(insert_val);
-            }
+            nums.push_back((insert_val, value));
         }
 
         Ok(Self { nums })
@@ -128,10 +174,13 @@ impl Display for Hardrive {
         let mut s = String::new();
 
         for num in &self.nums {
-            let val = num
+            let (id, len) = num;
+
+            let id = id
                 .map(|x| x.to_string().chars().next_back().unwrap())
                 .unwrap_or('.');
-            s.push(val);
+
+            s.push_str(&id.to_string().repeat(*len));
         }
 
         write!(f, "{s}")
