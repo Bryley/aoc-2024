@@ -158,6 +158,9 @@ impl Map {
 
         // println!("{og_pos1:?} {og_pos2:?}");
 
+
+        // TODO trying to get this working, it sometimes works sometimes doesn't I assume this is
+        // because of the order
         let pos1 = if og_pos1.0 > og_pos2.0 {
             og_pos1
         } else {
