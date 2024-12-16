@@ -17,6 +17,7 @@ fn main() {
         Box::new(day9::Day),
         Box::new(day10::Day),
         Box::new(day11::Day),
+        Box::new(day12::Day),
     ];
     let args = std::env::args().collect::<Vec<_>>();
     let [_, day_selection] = args.as_slice() else {
